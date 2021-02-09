@@ -1,0 +1,37 @@
+version: "3.2"
+services:
+    db:
+      image: mysql:5.7
+      volumes:
+        - db_data:/var/lib/mysql
+        - ./mysql-dump:/docker-entrypoint-initdb.d
+      restart: always
+      environment:
+        MYSQL_DATABASE: the_wall_final
+        MYSQL_ROOT_PASSWORD: password
+      ports:
+        - 3308:3306
+    
+    selenium_chrome:
+      image: selenium/standalone-chrome:4.0.0
+      volumes:
+        - /dev/shm:/dev/shm
+      ports:
+        - 4444:4444
+
+    app:
+      depends_on:
+        - db
+        - selenium_chrome
+      build: ./
+      restart: always
+      command: npm start
+      volumes:
+        - ./:/var/www/app 
+      ports:
+        - 3000:3000
+        - 9229:9229
+
+    
+volumes:
+    db_data: {}
